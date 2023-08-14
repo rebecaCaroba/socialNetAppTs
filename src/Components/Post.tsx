@@ -3,9 +3,25 @@ import ptBR from 'date-fns/locale/pt-BR'
 import { Avatar } from './Avatar'
 import { Comment } from './Comment'
 import styles from './Post.module.css'
-import { useState } from 'react';
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react';
 
-export function Post({ author, publishedAt, content }) {
+interface Content {
+    type: 'paragraph' | 'Link',
+    content: string
+}
+
+
+interface PostProps {
+    author: {
+        name: string,
+        role: string,
+        avatarUrl: string
+    }
+    publishedAt: Date;
+    content: Content[];
+}
+
+export function Post({ author, publishedAt, content }: PostProps) {
     const [comments, setComments] = useState([
         'Post bacana, hein?!'
     ])
@@ -21,22 +37,22 @@ export function Post({ author, publishedAt, content }) {
         addSuffix: true,
     });
 
-    function handleCreatNewComment() {
+    function handleCreatNewComment(event:FormEvent) {
         event.preventDefault()
         setComments([...comments, newCommentText])
         setNewCommentText('');
     }
 
-    function handleNewCommentChange() {1 
+    function handleNewCommentChange(event:ChangeEvent<HTMLTextAreaElement>) {1 
         event.target.setCustomValidity('');
         setNewCommentText(event.target.value);
     }
 
-    function handleNewCommentInvalid(){
+    function handleNewCommentInvalid(event: InvalidEvent<HTMLTextAreaElement>){
         event.target.setCustomValidity('Esse campo é obrigatório');
     }
 
-    function deleteComment(commentToDelete) {
+    function deleteComment(commentToDelete: string) {
         const commentsWithoutDeletedOne = comments.filter(comment => {
             return comment != commentToDelete;
         })
@@ -65,7 +81,7 @@ export function Post({ author, publishedAt, content }) {
                 {content.map(item => {
                     if (item.type == 'paragraph') {
                         return <p key={item.content}>{item.content}</p>
-                    } else if (item.type == "link") {
+                    } else if (item.type == "Link") {
                         return <p key={item.content}><a href="#">{item.content}</a></p>
                     }
                 })}
